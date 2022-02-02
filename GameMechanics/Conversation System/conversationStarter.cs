@@ -7,13 +7,70 @@ using System;
 public class conversationStarter : MonoBehaviour
 {
     public string defaultLine = "Hi Stranger, is there anything that I can do to help You";
+    public string wantmore = "Anything Else?";
+      
     public List<Conversation> possibleConversations = new List<Conversation>();
     public float radius = 2f;
 
+    questStarter questStarter;
+    questManager questManager;
 
-    public enum npcs { seller, jack };
-    public npcs charachterNpc;
+    public KeyCode interactionKey = KeyCode.F;
+    public GameObject alertObj;
+    public Transform alertParent;
+    GameObject alertSpawned;
+    public bool canStart = false;
 
+    public enum npcs { seller, jack, crazykyle };
+    public npcs charachterNpc; 
+
+    private void Awake()
+    {
+        CircleCollider2D col = GetComponent<CircleCollider2D>();
+        col.isTrigger = true;
+        col.radius = radius;
+    }
+
+    public virtual void Start()
+    {
+        questStarter = GetComponent<questStarter>();
+        questManager = questManager.instance;
+    }
+
+    public virtual void Update()
+    {
+        if (Input.GetKeyDown(interactionKey) && canStart)
+        {
+            if (questManager.activeQuest == null)
+            {
+                ConversationManager.instance.greetPlayer(defaultLine, possibleConversations, this);
+                topdMove.instance.freezeMovement();
+            }
+            else 
+            {
+                if (questStarter != null) { 
+                    if (questManager.currentQuestStarter == questStarter)
+                    {
+                        if (!questManager.questResourcesGathered())
+                        {
+                            List<Conversation> emprty = new List<Conversation>();
+                            ConversationManager.instance.greetPlayer(questManager.activeQuest.defaultInProgressLine, emprty, this); 
+                        }
+                        else
+                            ConversationManager.instance.greetPlayer(questManager.activeQuest.SuccessLine, questManager.activeQuest.relatedconversations, this);
+
+                        topdMove.instance.freezeMovement();
+                    }
+                }
+                else
+                {
+                    ConversationManager.instance.greetPlayer(defaultLine, possibleConversations, this);
+                    topdMove.instance.freezeMovement();
+                }
+            }
+        }
+    }
+     
     public int returnIndex(npcs type)
     {
         int index = Array.IndexOf(Enum.GetValues(type.GetType()), type);
@@ -42,24 +99,41 @@ public class conversationStarter : MonoBehaviour
         }
     }
 
-    private void Awake()
-    {
-        CircleCollider2D col = GetComponent<CircleCollider2D>();
-        col.isTrigger = true;
-        col.radius = radius; 
-    }
+   
 
     private void OnTriggerEnter2D(Collider2D collision)
     {
         if (collision.gameObject.CompareTag("Player"))
-        { 
-            ConversationManager.instance.greetPlayer(defaultLine, possibleConversations, this);
-            topdMove.instance.freezeMovement();  
+        {
+            canStart = true;
+             AlertPlayer(); 
         }
     }
 
-    public virtual void onCompleteAction(Conversation.action action)
+    private void OnTriggerExit2D(Collider2D collision)
     {
-        
+        if (collision.gameObject.CompareTag("Player"))
+        {
+            Destroy(alertSpawned);
+            canStart = false;
+        }
+    }
+
+    public virtual void AlertPlayer()
+    {
+        alertSpawned = Instantiate(alertObj, alertParent.position, Quaternion.identity);
+    }
+
+
+    public virtual void onCompleteAction(Conversation.action action, Conversation conv)
+    {
+        if (action == Conversation.action.quest)
+        {
+            questStarter.startQuest(conv.quest);
+        }
+        else if (action == Conversation.action.questEnd) 
+        {
+            questManager.endQuest();
+        }
     }
 }

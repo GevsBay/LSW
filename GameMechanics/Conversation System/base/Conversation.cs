@@ -6,7 +6,6 @@ using UnityEngine;
 public struct dialogue
 {
     public bool lastLine;
-    public bool actionLine;
      
     public enum speaker { player, npc};
     public speaker orator;
@@ -15,14 +14,15 @@ public struct dialogue
     public string speechContent; 
 }
 
-[CreateAssetMenu(fileName = "New", menuName = "Conversations")]
+[CreateAssetMenu(fileName = "New", menuName = "Conversation")]
 public class Conversation : ScriptableObject
 {
     public string shortDescription;
 
     public dialogue[] dialogues;
     public int currentindex = 0;
-    public enum action { buy, sell };
+    public enum action { buy, sell, quest, questEnd };
     public action _action;
-    public bool Action = false; 
+    public bool Action = false;
+    public quest quest;
 }

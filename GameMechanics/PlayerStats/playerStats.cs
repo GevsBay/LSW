@@ -12,9 +12,17 @@ public struct item
     public string description;
     public int price;
 
-    public enum type { hood, face, elbow, leg, pelvis, shoulder, torso, wrist, boot}
+    public enum type { hood, face, elbow, leg, pelvis, shoulder, torso, wrist, boot, weapon, questitem}
     public type itemType;
 }
+
+[System.Serializable]
+public struct spawnItem
+{
+    public int itemId;
+    public GameObject prefab;
+}
+
 
 [System.Serializable]
 public struct equipslot

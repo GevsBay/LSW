@@ -8,7 +8,8 @@ public class conversationSelector : MonoBehaviour
 
     public void onClick()
     {
-        ConversationManager.instance.startDialogue(conversation); 
+        ConversationManager.instance.startDialogue(conversation);
+        gameObject.SetActive(false);
     }
 
     public void next()

@@ -7,13 +7,14 @@ public class Shop : conversationStarter
 {
 
     shopManager manager;
-     
-    private void Start()
-    {
-        manager = shopManager.instance;
-    }
 
-    public override void onCompleteAction(Conversation.action action) 
+    public override void Start()
+    {
+        base.Start();
+        manager = shopManager.instance; 
+    } 
+
+    public override void onCompleteAction(Conversation.action action, Conversation conv) 
     {
         GenerateShopFront(action);
     }

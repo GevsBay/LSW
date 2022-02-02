@@ -45,6 +45,7 @@ public class shopManager : MonoBehaviour
     #endregion
      
     itemdatabase itemDatabase;
+    topdMove movement;
     playerStats playerstats;
     inventory _inventory;
 
@@ -52,6 +53,8 @@ public class shopManager : MonoBehaviour
     {
         itemDatabase = itemdatabase.instance;
         playerstats = playerStats.instance;
+        movement = topdMove.instance;
+
         _inventory = inventory.instance;
 
     }
@@ -80,6 +83,9 @@ public class shopManager : MonoBehaviour
 
             for (int i = 0; i < count; i++)
             {
+                if (itemDatabase.itemsDatabase[i].itemType == item.type.questitem)
+                    continue;
+
                 saleItem newitem = Instantiate(saleItem, contentHolder).GetComponent<saleItem>();
                 newitem.icon.sprite = itemDatabase.itemsDatabase[i].icon;
                 newitem.name.text = itemDatabase.itemsDatabase[i].description;
@@ -98,6 +104,9 @@ public class shopManager : MonoBehaviour
 
             for (int i = 0; i < count; i++)
             {
+                if (_inventory.currentInventory[i].itemType == item.type.questitem)
+                    continue;
+
                 saleItem newitem = Instantiate(saleItem, contentHolder).GetComponent<saleItem>();
                 newitem.icon.sprite = _inventory.currentInventory[i].icon;
                 newitem.name.text = _inventory.currentInventory[i].description;
@@ -111,7 +120,7 @@ public class shopManager : MonoBehaviour
 
         }
 
-
+        movement.freezeMovement();
         money.text = playerstats.Money.ToString();
         shopui.SetActive(true); 
         uiShown = true;
@@ -122,7 +131,9 @@ public class shopManager : MonoBehaviour
         for (int i = 0; i < contentHolder.childCount; i++)
         {
             Destroy(contentHolder.GetChild(i).gameObject);
-        } 
+        }
+
+        movement.unfreezeMovement();
 
         shopui.SetActive(false);
 
@@ -143,6 +154,9 @@ public class shopManager : MonoBehaviour
 
             for (int i = 0; i < count; i++)
             {
+                if (_inventory.currentInventory[i].itemType == item.type.questitem)
+                    continue;
+
                 saleItem newitem = Instantiate(saleItem, contentHolder).GetComponent<saleItem>();
                 newitem.icon.sprite = _inventory.currentInventory[i].icon;
                 newitem.name.text = _inventory.currentInventory[i].description;
@@ -161,6 +175,9 @@ public class shopManager : MonoBehaviour
 
             for (int i = 0; i < count; i++)
             {
+                if (itemDatabase.itemsDatabase[i].itemType == item.type.questitem)
+                    continue;
+
                 saleItem newitem = Instantiate(saleItem, contentHolder).GetComponent<saleItem>();
                 newitem.icon.sprite = itemDatabase.itemsDatabase[i].icon;
                 newitem.name.text = itemDatabase.itemsDatabase[i].description;
@@ -207,6 +224,9 @@ public class shopManager : MonoBehaviour
 
         for (int i = 0; i < count; i++)
         {
+            if (_inventory.currentInventory[i].itemType == item.type.questitem)
+                continue;
+
             saleItem newitem = Instantiate(saleItem, contentHolder).GetComponent<saleItem>();
             newitem.icon.sprite = items[i].icon;
             newitem.name.text = items[i].description;

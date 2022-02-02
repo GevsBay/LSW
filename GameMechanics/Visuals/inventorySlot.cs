@@ -12,7 +12,10 @@ public class inventorySlot : MonoBehaviour
       
     public void onClicked()
     {
-        int index = Array.IndexOf(Enum.GetValues(type.GetType()), type);  
+        int index = Array.IndexOf(Enum.GetValues(type.GetType()), type);
+        if (index >= playerStats.instance.equipslots.Length)
+            return;
+
         playerStats.instance.swapGraphics(icon, index);
     }
 }
