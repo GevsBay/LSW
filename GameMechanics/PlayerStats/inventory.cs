@@ -23,29 +23,17 @@ public class inventory : MonoBehaviour
     public GameObject invSlot;
     #endregion
 
-    shopManager shopmanager;
-    ConversationManager conversationmanager;
+    inputHandler InputManager;
+
 
     private void Start()
-    {
-        shopmanager = shopManager.instance;
-        conversationmanager = ConversationManager.instance;
-
+    {  
+        InputManager = inputHandler.instance;
     }
 
     public void showInventory()
     {
-        if (invUi.activeInHierarchy)
-        {
-            for (int i = 0; i < contentHolder.childCount; i++)
-            {
-                Destroy(contentHolder.GetChild(i).gameObject);
-            }
-            invUi.SetActive(false);
-            topdMove.instance.unfreezeMovement();
-
-        }
-        else { 
+          
           for (int i = 0; i < currentInventory.Count; i++)
           {
             inventorySlot newobj = Instantiate(invSlot, contentHolder).GetComponent<inventorySlot>();
@@ -53,8 +41,20 @@ public class inventory : MonoBehaviour
             newobj.type = currentInventory[i].itemType;
           }
           invUi.SetActive(true);
+          InputManager.disableUIinteractions();
           topdMove.instance.freezeMovement();
-       }
+       
+    }
+
+    void hideinventory()
+    {
+        for (int i = 0; i < contentHolder.childCount; i++)
+        {
+            Destroy(contentHolder.GetChild(i).gameObject);
+        }
+        invUi.SetActive(false);
+        InputManager.allowUIinteractions();
+        topdMove.instance.unfreezeMovement();
     }
 
     public void sortInv(List<item> items)
@@ -76,11 +76,18 @@ public class inventory : MonoBehaviour
 
     private void Update()
     {
-        if (Input.GetKeyDown(KeyCode.Tab) && !shopmanager.uiShown && !conversationmanager.ConversationUI.activeInHierarchy) 
+        if (Input.GetKeyDown(KeyCode.Tab)) 
         {
-            showInventory();
+            if (!InputManager.UiShown)
+                showInventory();
+            else if (invUi.activeInHierarchy)
+            {
+                hideinventory();
+            }
         }
     }
+
+
 
     public void addItem(int itemid)
     {

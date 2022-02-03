@@ -50,6 +50,13 @@ public class ConversationManager : MonoBehaviour
     conversationStarter thisConversationstarter; 
     private bool UiSpawned;
 
+    inputHandler InputManager;
+     
+    private void Start()
+    {
+        InputManager = inputHandler.instance;
+    }
+
 
     private void Update()
     {
@@ -72,6 +79,7 @@ public class ConversationManager : MonoBehaviour
         }
            
         ConversationUI.SetActive(true);
+        InputManager.disableUIinteractions();
 
         iconindex = starter.returnIndex(starter.charachterNpc);
         currentspeakerImage.sprite = npcIcons[iconindex];
@@ -88,12 +96,15 @@ public class ConversationManager : MonoBehaviour
         thisConversationstarter = null;
         greetingPanel.SetActive(false);
         ConversationUI.SetActive(false);
+        InputManager.allowUIinteractions();
+        InputManager.allowMovement();
+
 
         for (int i = 0; i < convSelectionOptionsParent.transform.childCount; i++)
         {
             Destroy(convSelectionOptionsParent.transform.GetChild(i).gameObject);
         }
-        topdMove.instance.unfreezeMovement();
+
         currentConversation = null;
         UiSpawned = false; 
     }
@@ -164,6 +175,10 @@ public class ConversationManager : MonoBehaviour
         greetingPanel.SetActive(false);
         dialogueUi.SetActive(false);
         ConversationUI.SetActive(false);
+        InputManager.allowUIinteractions();
+        InputManager.allowMovement();
+
+
         currentConversation = null; 
         UiSpawned = false;
     }

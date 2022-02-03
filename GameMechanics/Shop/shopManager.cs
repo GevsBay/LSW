@@ -45,7 +45,7 @@ public class shopManager : MonoBehaviour
     #endregion
      
     itemdatabase itemDatabase;
-    topdMove movement;
+    inputHandler InputManager;
     playerStats playerstats;
     inventory _inventory;
 
@@ -53,7 +53,7 @@ public class shopManager : MonoBehaviour
     {
         itemDatabase = itemdatabase.instance;
         playerstats = playerStats.instance;
-        movement = topdMove.instance;
+        InputManager = inputHandler.instance;
 
         _inventory = inventory.instance;
 
@@ -120,7 +120,7 @@ public class shopManager : MonoBehaviour
 
         }
 
-        movement.freezeMovement();
+        InputManager.disableMovement();
         money.text = playerstats.Money.ToString();
         shopui.SetActive(true); 
         uiShown = true;
@@ -133,7 +133,7 @@ public class shopManager : MonoBehaviour
             Destroy(contentHolder.GetChild(i).gameObject);
         }
 
-        movement.unfreezeMovement();
+        InputManager.allowMovement();
 
         shopui.SetActive(false);
 

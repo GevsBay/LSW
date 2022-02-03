@@ -20,6 +20,8 @@ public class conversationStarter : MonoBehaviour
     public Transform alertParent;
     GameObject alertSpawned;
     public bool canStart = false;
+    inputHandler InputManager;
+
 
     public enum npcs { seller, jack, crazykyle };
     public npcs charachterNpc; 
@@ -31,20 +33,22 @@ public class conversationStarter : MonoBehaviour
         col.radius = radius;
     }
 
+     
     public virtual void Start()
     {
+        InputManager = inputHandler.instance; 
         questStarter = GetComponent<questStarter>();
         questManager = questManager.instance;
     }
 
     public virtual void Update()
     {
-        if (Input.GetKeyDown(interactionKey) && canStart)
+        if (Input.GetKeyDown(interactionKey) && canStart && !InputManager.UiShown)
         {
             if (questManager.activeQuest == null)
             {
                 ConversationManager.instance.greetPlayer(defaultLine, possibleConversations, this);
-                topdMove.instance.freezeMovement();
+                InputManager.disableMovement(); 
             }
             else 
             {
@@ -59,13 +63,13 @@ public class conversationStarter : MonoBehaviour
                         else
                             ConversationManager.instance.greetPlayer(questManager.activeQuest.SuccessLine, questManager.activeQuest.relatedconversations, this);
 
-                        topdMove.instance.freezeMovement();
+                        InputManager.disableMovement(); 
                     }
                 }
                 else
                 {
                     ConversationManager.instance.greetPlayer(defaultLine, possibleConversations, this);
-                    topdMove.instance.freezeMovement();
+                    InputManager.disableMovement();
                 }
             }
         }
@@ -105,7 +109,7 @@ public class conversationStarter : MonoBehaviour
     {
         if (collision.gameObject.CompareTag("Player"))
         {
-            canStart = true;
+             canStart = true;
              AlertPlayer(); 
         }
     }

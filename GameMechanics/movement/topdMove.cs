@@ -30,7 +30,8 @@ public class topdMove : MonoBehaviour
     public string[] attackanimations;
     public float attackDelay = 3f;
     public float timer;
-
+    inputHandler InputManager;
+     
     void Update()
     {
         if (!canMove)
