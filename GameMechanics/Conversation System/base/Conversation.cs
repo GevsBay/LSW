@@ -21,6 +21,11 @@ public class Conversation : ScriptableObject
 
     public dialogue[] dialogues;
     public int currentindex = 0;
+    public Conversation[] toUnlock;
+    public bool finished = false;
+    public bool repeater = false;
+    public bool unlocked = false;
+
     public enum action { buy, sell, quest, questEnd };
     public action _action;
     public bool Action = false;

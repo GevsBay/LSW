@@ -6,7 +6,8 @@ using System;
 [RequireComponent(typeof(CircleCollider2D))]
 public class conversationStarter : MonoBehaviour
 {
-    public string defaultLine = "Hi Stranger, is there anything that I can do to help You";
+    public string defaultLine = "Hi Stranger, is there anything that I can do to help You?";
+    public string noConversationAvailable = "Sorry, don't have much to say now!";
     public string wantmore = "Anything Else?";
       
     public List<Conversation> possibleConversations = new List<Conversation>();
@@ -47,7 +48,7 @@ public class conversationStarter : MonoBehaviour
         {
             if (questManager.activeQuest == null)
             {
-                ConversationManager.instance.greetPlayer(defaultLine, possibleConversations, this);
+                ConversationManager.instance.greetPlayer(defaultLine, noConversationAvailable, possibleConversations, this);
                 InputManager.disableMovement(); 
             }
             else 
@@ -68,7 +69,7 @@ public class conversationStarter : MonoBehaviour
                 }
                 else
                 {
-                    ConversationManager.instance.greetPlayer(defaultLine, possibleConversations, this);
+                    ConversationManager.instance.greetPlayer(defaultLine, noConversationAvailable, possibleConversations, this);
                     InputManager.disableMovement();
                 }
             }

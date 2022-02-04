@@ -28,7 +28,7 @@ public class ConversationManager : MonoBehaviour
 
     public Text Content;
 
-    [Header("GreetingPanel")] 
+    [Header("GreetingPanel")]
     public Text greetingtext;
     public GameObject greetingPanel;
     public GameObject convSelectionOptionsParent;
@@ -38,20 +38,20 @@ public class ConversationManager : MonoBehaviour
     #region TextScroller  
     bool canSkip = false;
     [SerializeField]
-    bool skipOnDelay = false; 
+    bool skipOnDelay = false;
     bool scrollFinished = false;
     bool dialoguestarted = false;
     string currentSentance;
     Text currentText;
     #endregion
 
-    public Conversation currentConversation; 
+    public Conversation currentConversation;
     public List<Conversation> possibleConversations = new List<Conversation>();
-    conversationStarter thisConversationstarter; 
+    conversationStarter thisConversationstarter;
     private bool UiSpawned;
 
     inputHandler InputManager;
-     
+
     private void Start()
     {
         InputManager = inputHandler.instance;
@@ -61,13 +61,39 @@ public class ConversationManager : MonoBehaviour
     private void Update()
     {
         if (ConversationUI.activeInHierarchy)
-        { 
-            if(Input.GetMouseButtonDown(0))
-            nextLine();
+        {
+            if (Input.GetMouseButtonDown(0))
+                nextLine();
 
             if (!dialoguestarted && canSkip && Input.GetKeyDown(KeyCode.Escape))
                 skipConversations();
-        } 
+        }
+
+    }
+
+    public void greetPlayer(string greetSentance, string connotavailable, List<Conversation> conversations, conversationStarter starter)
+    {
+        foreach (var item in conversations)
+        {
+            possibleConversations.Add(item);
+        }
+
+        ConversationUI.SetActive(true);
+        InputManager.disableUIinteractions();
+
+        iconindex = starter.returnIndex(starter.charachterNpc);
+        currentspeakerImage.sprite = npcIcons[iconindex];
+        thisConversationstarter = starter;
+        if (conversationAvailable())
+        {
+            StartCoroutine(scrollText(greetSentance, greetingtext));
+        }
+        else
+        {
+            StartCoroutine(scrollTextandEnd(connotavailable, greetingtext));  
+        }
+
+        greetingPanel.SetActive(true);
 
     }
 
@@ -75,9 +101,9 @@ public class ConversationManager : MonoBehaviour
     {
         foreach (var item in conversations)
         {
-            possibleConversations.Add(item); 
+            possibleConversations.Add(item);
         }
-           
+
         ConversationUI.SetActive(true);
         InputManager.disableUIinteractions();
 
@@ -87,10 +113,9 @@ public class ConversationManager : MonoBehaviour
         StartCoroutine(scrollText(greetSentance, greetingtext));
 
         greetingPanel.SetActive(true);
-        
-    }
+}
 
-    void skipConversations() 
+    void skipConversations()
     {
         possibleConversations.Clear();
         thisConversationstarter = null;
@@ -106,10 +131,9 @@ public class ConversationManager : MonoBehaviour
         }
 
         currentConversation = null;
-        UiSpawned = false; 
+        UiSpawned = false;
     }
-
-
+     
     public void startDialogue(Conversation conversation)
     {
         skipOnDelay = true;
@@ -118,7 +142,7 @@ public class ConversationManager : MonoBehaviour
         dialoguestarted = true;
 
         greetingPanel.SetActive(false);
-        dialogueUi.SetActive(true); 
+        dialogueUi.SetActive(true);
         currentConversation = conversation;
 
         updateDialogueUi();
@@ -129,7 +153,7 @@ public class ConversationManager : MonoBehaviour
         if (scrollFinished == false && !skipOnDelay)
         {
             endScrollFast();
-            return; 
+            return;
         }
 
         if (!canSkip || !dialoguestarted)
@@ -143,23 +167,54 @@ public class ConversationManager : MonoBehaviour
         else
         {
             if (currentConversation.Action)
-            { 
+            {
                 topdMove.instance.unfreezeMovement();
                 thisConversationstarter.onCompleteAction(currentConversation._action, currentConversation);
                 finishTalking();
-            }else
-               endDialogue();
+            } else
+                endDialogue();
         }
-       
+
     }
-     
+
     private void endDialogue()
     {
-        dialoguestarted = false; 
+        dialoguestarted = false;
+
+        if (!currentConversation.repeater)
+            currentConversation.finished = true;
+
+        if (currentConversation.toUnlock.Length != 0)
+        {
+            foreach (var item in currentConversation.toUnlock)
+            {
+                item.unlocked = true;
+            }
+        }
+
         currentConversation.currentindex = 0;
+          
+        if(!conversationAvailable())
+        {
+            finishTalking();
+            return;
+        }    
         dialogueUi.SetActive(false);
         greetingPanel.SetActive(true);
         StartCoroutine(scrollText(thisConversationstarter.wantmore, greetingtext));
+    }
+
+    bool conversationAvailable()
+    {
+       for (int i = 0; i<possibleConversations.Count; i++)
+        {
+            if (!possibleConversations[i].finished && possibleConversations[i].unlocked)
+            {
+                return true; 
+            }
+        }
+        return false;
+
     }
 
     public void finishTalking()
@@ -179,22 +234,22 @@ public class ConversationManager : MonoBehaviour
         InputManager.allowMovement();
 
 
-        currentConversation = null; 
+        currentConversation = null;
         UiSpawned = false;
     }
 
     void updateDialogueUi()
     {
         currentspeakerImage.sprite = currentConversation.dialogues[currentConversation.currentindex].orator == dialogue.speaker.player ? playerIcon : npcIcons[iconindex];
-        StartCoroutine(scrollText(currentConversation.dialogues[currentConversation.currentindex].speechContent, Content)); 
+        StartCoroutine(scrollText(currentConversation.dialogues[currentConversation.currentindex].speechContent, Content));
     }
 
     IEnumerator scrollText(string sentance, Text target)
     {
         //only play if npc talks
-        if(!dialoguestarted || currentConversation.dialogues[currentConversation.currentindex].orator == dialogue.speaker.npc)
-        thisConversationstarter.playTalkAnimation();
-        
+        if (!dialoguestarted || currentConversation.dialogues[currentConversation.currentindex].orator == dialogue.speaker.npc)
+            thisConversationstarter.playTalkAnimation();
+
         canSkip = false;
         scrollFinished = false;
         currentSentance = sentance;
@@ -208,7 +263,7 @@ public class ConversationManager : MonoBehaviour
             yield return new WaitForSecondsRealtime(0.05f);
         }
 
-        if (!UiSpawned)
+        if (!UiSpawned || !dialoguestarted)
         {
             spawnUI();
         }
@@ -218,13 +273,49 @@ public class ConversationManager : MonoBehaviour
          
     }
 
+    IEnumerator scrollTextandEnd(string sentance, Text target)
+    {
+        //only play if npc talks
+        if (!dialoguestarted || currentConversation.dialogues[currentConversation.currentindex].orator == dialogue.speaker.npc)
+            thisConversationstarter.playTalkAnimation();
+
+        canSkip = false;
+        scrollFinished = true;
+        currentSentance = sentance;
+        currentText = target;
+
+        target.text = "";
+        foreach (char c in sentance)
+        {
+            target.text += c;
+
+            yield return new WaitForSecondsRealtime(0.05f);
+        } 
+        canSkip = true; 
+        thisConversationstarter.stopTalkAnimation();
+
+        Invoke("closeUi", 0.4f);
+    }
+
+    void closeUi()
+    {
+        possibleConversations.Clear();
+        thisConversationstarter = null;
+        dialoguestarted = false;
+        dialogueUi.SetActive(false);
+        ConversationUI.SetActive(false);
+        InputManager.allowUIinteractions();
+        InputManager.allowMovement();
+        UiSpawned = false;
+    }
+
     private void endScrollFast()
     {
         StopAllCoroutines();
         thisConversationstarter.stopTalkAnimation(); 
         currentText.text = currentSentance;
 
-        if (!UiSpawned)
+        if (!UiSpawned || !dialoguestarted)
         {
             spawnUI();
         }
@@ -237,13 +328,17 @@ public class ConversationManager : MonoBehaviour
     {
         skipOnDelay = false;
     }
+
     void spawnUI() 
     {
         for (int i = 0; i < possibleConversations.Count; i++)
         {
-            GameObject newobj = Instantiate(dialogueSelectionPrefab, convSelectionOptionsParent.transform);
-            newobj.GetComponent<conversationSelector>().conversation = possibleConversations[i];
-            newobj.GetComponent<Text>().text = possibleConversations[i].shortDescription;
+            if (!possibleConversations[i].finished && possibleConversations[i].unlocked)
+            {
+                GameObject newobj = Instantiate(dialogueSelectionPrefab, convSelectionOptionsParent.transform);
+                newobj.GetComponent<conversationSelector>().conversation = possibleConversations[i];
+                newobj.GetComponent<Text>().text = possibleConversations[i].shortDescription;
+            }  
         }
         UiSpawned = true; 
     }
